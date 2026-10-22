@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DPMODS Raw HWID Controller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- INSTANT NETLIFY BADGE KILLER -->
+    <style>
+        #nl-badge, .nl-badge, [aria-label*="Netlify"], [aria-controls="nl-card"], #netlify-badge, iframe[src*="netlify"] {
+            display: none !important; visibility: hidden !important; opacity: 0 !important;
+            pointer-events: none !important; position: absolute !important;
+            top: -9999px !important; left: -9999px !important; z-index: -99999 !important; width: 0 !important; height: 0 !important;
+        }
+    </style>
+    <script>
+        const killNetlify = () => {
+            if (document.body) {
+                new MutationObserver(() => {
+                    document.querySelectorAll('[id*="netlify"], [class*="netlify"], .nl-badge, #nl-badge').forEach(el => {
+                        el.style.setProperty('display', 'none', 'important'); el.remove();
+                    });
+                }).observe(document.body, { childList: true, subtree: true });
+            } else requestAnimationFrame(killNetlify);
+        };
+        killNetlify();
+    </script>
+
+    <style>
+        :root {
+            --cyan: #00E5FF;
+            --cyan-dim: rgba(0, 229, 255, 0.1);
+            --cyan-glow: 0 0 15px rgba(0, 229, 255, 0.4);
+            
+            --bg-dark: #070709;
+            --bg-card: #101114;
+            --bg-card-sub: #16171d;
+            
+            --border-light: rgba(255, 255, 255, 0.08);
+            --border-cyan: rgba(0, 229, 255, 0.3);
+            
+            --text-main: #ffffff;
+            --text-muted: #8b92a5;
+            
+            --danger: #ff4757;
+            --danger-dim: rgba(255, 71, 87, 0.12);
+            --success: #2ed573;
+            --success-dim: rgba(46, 213, 115, 0.15);
+            --warning: #ffa502;
+            --warning-dim: rgba(255, 165, 2, 0.12);
+            
+            --nav-height: 75px;
+            color-scheme: dark;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        input, textarea, select { user-select: auto; font-family: inherit; } 
+        ::-webkit-scrollbar { display: none; }
+        
+        body { 
+            background: var(--bg-dark); color: var(--text-main); 
+            min-height: 100dvh; overflow-x: hidden; overscroll-behavior-y: contain; 
+        }
+
+        :focus-visible { outline: none; }
+        .app-container { max-width: 600px; margin: 0 auto; padding-bottom: calc(var(--nav-height) + 30px); display: flex; flex-direction: column; min-height: 100dvh; position: relative;}
+
+        /* --- DYNAMIC ISLAND SNACKBAR --- */
+        #dynamic-island {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%) scale(0.85);
+            background: #1e1e24; color: #fff; border-radius: 12px; padding: 12px 22px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-weight: 700; font-size: 0.9rem; letter-spacing: 0.5px; 
+            opacity: 0; visibility: hidden; z-index: 99999; pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.1);
+            white-space: nowrap; border: 1px solid var(--border-light);
+        }
+        #dynamic-island.show { opacity: 1; visibility: visible; transform: translateX(-50%) scale(1); }
+
+        /* --- LOGIN SCREEN --- */
+        #login-screen { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; z-index: 500; background: var(--bg-dark); transition: opacity 0.4s ease;}
+        .login-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 360px; }
+        .logo-icon { font-size: 4.2rem; color: var(--cyan); margin-bottom: 12px; filter: drop-shadow(var(--cyan-glow)); }
+        #login-screen h1 { font-size: 2rem; font-weight: 900; line-height: 1.1; margin-bottom: 24px; letter-spacing: -0.5px; }
+
+        .login-card { background: var(--bg-card); border-radius: 20px; padding: 22px; border: 1px solid var(--border-light); width: 100%; margin-bottom: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);}
+        
+        .input-group { margin-bottom: 16px; text-align: start; width: 100%; }
+        .input-group label { display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: 800; margin-bottom: 6px; padding: 0 4px; text-transform: uppercase; letter-spacing: 1px;}
+        .input-group input, .input-group textarea { width: 100%; background: #070709; border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.9rem; font-weight: 600; outline: none; transition: 0.2s;}
+        .input-group input:focus, .input-group textarea:focus { border-color: var(--cyan); box-shadow: 0 0 8px rgba(0,229,255,0.2); }
+        .input-row { display: flex; gap: 12px; }
+        .input-row .input-group { flex: 1; margin-bottom: 10px; }
+
+        .btn-primary { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 0.95rem; font-weight: 900; cursor: pointer; transition: 0.2s; background: var(--cyan); color: #000; box-shadow: var(--cyan-glow); text-transform: uppercase; letter-spacing: 1px;}
+        .btn-primary:active { transform: scale(0.96); opacity: 0.8;}
+
+        .btn-outline { width: 100%; padding: 13px; border-radius: 12px; border: 1px dashed var(--border-cyan); font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; background: rgba(0,229,255,0.05); color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;}
+        .btn-outline:active { transform: scale(0.96); background: var(--cyan-dim);}
+
+        .saved-url-item { background: var(--bg-card); border: 1px solid var(--border-light); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;}
+        .saved-url-item:active { transform: scale(0.98); background: #1a1a1f; }
+
+        /* --- HEADER --- */
+        .page-header { padding: 38px 20px 16px; position: sticky; top: 0; background: rgba(10,10,12,0.92); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 50; border-bottom: 1px solid var(--border-light); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .app-main-title { font-size: 2.1rem; font-weight: 900; letter-spacing: -1px; color: #fff; text-transform: uppercase; display: flex; gap: 6px; align-items: center;}
+        
+        .secure-badge { background: var(--success-dim); border: 1px solid rgba(46, 213, 115, 0.4); color: var(--success); padding: 5px 12px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 6px; letter-spacing: 1px; flex-shrink: 0;}
+        .secure-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; box-shadow: 0 0 6px var(--success); }
+
+        .header-sub { display: flex; justify-content: space-between; align-items: center; }
+        .sync-text { font-size: 0.72rem; color: var(--cyan); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 10px;}
+        
+        .disconnect-btn { background: transparent; border: 1px solid rgba(255, 71, 87, 0.4); color: var(--danger); padding: 5px 12px; border-radius: 12px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;}
+        .disconnect-btn:active { background: var(--danger-dim); }
+
+        /* --- SLEEK COMPACT STATS CARDS --- */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 14px 20px 10px; }
+        .stat-card { background: rgba(255,255,255,0.015); border: 1px solid var(--border-light); border-radius: 12px; padding: 10px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer;}
+        .stat-card:active { transform: scale(0.96); }
+        .stat-card.blue { border-color: rgba(59, 130, 246, 0.35); }
+        .stat-card.cyan { border-color: rgba(0, 229, 255, 0.35); }
+        .stat-card.orange { border-color: rgba(245, 158, 11, 0.35); }
+        
+        .stat-icon { font-size: 1rem; margin-bottom: 4px; }
+        .stat-card.blue .stat-icon { color: #3b82f6; }
+        .stat-card.cyan .stat-icon { color: var(--cyan); }
+        .stat-card.orange .stat-icon { color: #f59e0b; }
+
+        .stat-num { font-size: 1.35rem; font-weight: 900; color: #fff; line-height: 1; margin-bottom: 3px; font-family: 'JetBrains Mono', monospace;}
+        .stat-label { font-size: 0.52rem; color: var(--text-muted); font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;}
+
+        /* --- SEARCH & FAB INLINE --- */
+        .search-fab-container { display: flex; gap: 10px; padding: 4px 20px 12px; align-items: center;}
+        .search-box { flex: 1; position: relative; }
+        .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--cyan); font-size: 0.9rem; }
+        .search-input { width: 100%; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 18px; padding: 13px 16px 13px 40px; color: #fff; font-size: 0.88rem; font-weight: 600; outline: none; transition: 0.2s;}
+        .search-input:focus { border-color: var(--cyan); }
+        
+        .fab-inline { width: 46px; height: 46px; border-radius: 23px; background: var(--cyan); color: #000; border: none; font-size: 1.3rem; display: flex; justify-content: center; align-items: center; box-shadow: var(--cyan-glow); cursor: pointer; transition: 0.2s; flex-shrink: 0;}
+        .fab-inline:active { transform: scale(0.9); }
+
+        /* --- FILTERS --- */
+        .filter-chips-row { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 12px; scrollbar-width: none; }
+        .filter-chip { background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); padding: 6px 16px; border-radius: 14px; font-size: 0.68rem; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.8px;}
+        .filter-chip.active { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim);}
+
+        /* --- BULK ACTIONS --- */
+        .bulk-actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 20px 14px; }
+        .bulk-btn { background: rgba(255,255,255,0.02); border: 1px solid var(--border-light); border-radius: 10px; padding: 10px 6px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: 0.2s;}
+        .bulk-btn:active { transform: scale(0.96); background: rgba(255,255,255,0.05); }
+        .bulk-btn i { font-size: 0.9rem; }
+        .bulk-btn span { font-size: 0.58rem; font-weight: 800; text-transform: uppercase; text-align: left; line-height: 1.15; letter-spacing: 0.4px;}
+        
+        .btn-copy-raw { color: var(--cyan); border-color: rgba(0, 229, 255, 0.3); }
+        .btn-del-exp { color: var(--danger); border-color: rgba(255, 71, 87, 0.3); }
+        .btn-ext-all { color: var(--success); border-color: rgba(46, 213, 115, 0.3); }
+
+        /* --- ACCORDION LIST CARDS --- */
+        .content-area { padding: 0 20px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .acc-card { background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-light); overflow: hidden; transition: 0.25s ease; }
+        
+        .acc-header { display: flex; justify-content: space-between; align-items: center; padding: 14px; cursor: pointer; user-select: none; gap: 8px;}
+        .acc-header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+        .acc-chevron { color: var(--text-muted); font-size: 0.75rem; transition: transform 0.3s; flex-shrink: 0;}
+        .acc-card.expanded .acc-chevron { transform: rotate(180deg); color: var(--cyan); }
+        
+        .key-icon { color: var(--cyan); font-size: 1.1rem; flex-shrink: 0;}
+        
+        .key-title-wrapper { display: flex; flex-direction: column; flex: 1; min-width: 0; justify-content: center; }
+        .key-title { font-size: 0.9rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .key-sub-date { font-size: 0.64rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; font-weight: 700;}
+        
+        .acc-header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .copy-badge { background: rgba(255,255,255,0.06); color: var(--text-muted); font-size: 0.55rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.06);}
+        .copy-badge:active { background: var(--cyan); color: #000; }
+
+        .status-badge { display: flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 8px; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; border: 1px solid transparent;}
+        .status-badge.active { background: var(--success-dim); border-color: rgba(46, 213, 115, 0.3); color: var(--success); }
+        .status-badge.expired { background: var(--danger-dim); border-color: rgba(255, 71, 87, 0.3); color: var(--danger); }
+        .badge-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+        .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: rgba(0,0,0,0.35); }
+        .acc-content { padding: 14px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid rgba(255,255,255,0.04); }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.015); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);}
+        .info-box { display: flex; flex-direction: column; gap: 3px; min-width: 0;}
+        .info-lbl { font-size: 0.56rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;}
+        .info-val { font-size: 0.8rem; color: #fff; font-weight: 700; font-family: 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis;}
+
+        .action-row { display: flex; gap: 8px; margin-top: 2px;}
+        .action-btn { flex: 1; padding: 10px; border-radius: 9px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; display: flex; justify-content: center; align-items: center; gap: 6px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.4px;}
+        .action-btn:active { transform: scale(0.95); }
+        .btn-plus30 { background: var(--success-dim); color: var(--success); border: 1px solid rgba(46,213,115,0.25); }
+        .btn-edit { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.08);}
+        .btn-delete { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(255,71,87,0.25); }
+
+        .load-more-btn { background: rgba(0, 229, 255, 0.05); color: var(--cyan); border: 1px solid var(--border-cyan); width: 100%; padding: 13px; border-radius: 12px; margin-top: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;}
+        .load-more-btn:active { transform: scale(0.98); background: var(--cyan-dim); }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: rgba(10,10,12,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 0.6rem; font-weight: 800; cursor: pointer; transition: 0.3s; flex: 1; height: 100%; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;}
+        .nav-icon-wrap { width: 42px; height: 28px; border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 1.15rem; transition: 0.3s; margin-bottom: 2px;}
+        .nav-item.active .nav-icon-wrap { background: var(--cyan-dim); color: var(--cyan); }
+        .nav-item.active span { color: var(--cyan); }
+
+        .view { display: none; }
+        .view.active { display: block; animation: smoothFadeIn 0.25s ease forwards; }
+        @keyframes smoothFadeIn { 0% { opacity: 0; transform: translateY(8px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* --- MODALS --- */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s ease; pointer-events: none; display: flex; justify-content: center; align-items: flex-end;}
+        .modal-overlay.active { opacity: 1; visibility: visible; pointer-events: auto; }
+        .modal-card { background: var(--bg-card); width: 100%; max-width: 600px; border-radius: 24px 24px 0 0; padding: 22px 22px 36px; transform: translateY(100%); transition: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1); border-top: 1px solid var(--border-cyan); box-shadow: 0 -10px 40px rgba(0,229,255,0.1); max-height: 88vh; overflow-y: auto;}
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: -6px auto 18px; }
+        
+        .modal-btn-cancel { flex: 1; background: #1a1b1f; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 12px; font-weight: 800; font-size: 0.88rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;}
+        .modal-btn-cancel:active { background: #222; }
+        .modal-btn-action { flex: 2; background: var(--cyan); color: #000; border: none; padding: 14px; border-radius: 12px; font-weight: 900; font-size: 0.88rem; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s; box-shadow: var(--cyan-glow);}
+        .modal-btn-action:active { transform: scale(0.97); }
+
+        .sq-btn { width: 46px; height: 46px; border-radius: 12px; background: #1a1b1f; border: 1px solid var(--border-light); display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; transition: 0.2s;}
+        .sq-btn:active { background: #25262c; transform: scale(0.94);}
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;}
+        .ios-card { background: var(--bg-card); border-radius: 18px; padding: 18px; border: 1px solid var(--border-light); margin-bottom: 16px; }
+
+        .quick-days-row { display: flex; gap: 6px; margin-top: 8px; }
+        .q-day-btn { flex: 1; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.25); color: var(--cyan); padding: 8px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; text-align: center;}
+        .q-day-btn:active { background: var(--cyan); color: #000; }
+    </style>
+</head>
+<body dir="ltr">
+
+    <!-- DYNAMIC ISLAND -->
+    <div id="dynamic-island"><i id="di-icon" class="fas fa-check-circle"></i> <span id="di-msg"></span></div>
+
+    <!-- LOGIN / CONNECTION SCREEN -->
+    <div id="login-screen">
+        <div class="login-wrapper">
+            <div class="logo-icon"><i class="fas fa-microchip"></i></div>
+            <h1>DPMODS <span style="color:var(--cyan);">RAW</span></h1>
+            
+            <div class="login-card">
+                <div class="input-group">
+                    <label>Firebase URL or GitHub Raw/API URL</label>
+                    <input type="text" id="auth-url" placeholder="https://your-db.firebaseio.com">
+                </div>
+                <div class="input-group">
+                    <label>Admin Token / GitHub Token (Optional for Raw)</label>
+                    <input type="password" id="auth-secret" placeholder="Token / Secret">
+                </div>
+                <button id="login-btn" class="btn-primary" onclick="login()" style="margin-top: 4px;">CONNECT REMOTE</button>
+                <button class="btn-outline" onclick="startDirectRawMode()"><i class="fas fa-code"></i> OPEN DIRECT RAW MODE</button>
+            </div>
+            
+            <div id="saved-connections" style="width: 100%; text-align: start; display: none;">
+                <div style="display:flex; justify-content:space-between; margin: 10px 4px 8px;">
+                    <span style="color:var(--text-muted); font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:1px;">Saved Connections</span>
+                    <span style="color:var(--danger); font-size:0.68rem; font-weight:800; cursor:pointer; letter-spacing:1px;" onclick="clearAllHistory()">CLEAR</span>
+                </div>
+                <div id="saved-url-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container" id="main-app" style="display: none;">
+        
+        <div class="page-header">
+            <div class="header-top">
+                <div class="app-main-title">CONTROLLER</div>
+                <div class="secure-badge"><div class="secure-dot"></div> <span id="mode-badge-txt">RAW ENGINE</span></div>
+            </div>
+            <div class="header-sub">
+                <div class="sync-text">
+                    <span id="sync-status-lbl">FORMAT: HWID:DD/MM/YYYY</span>
+                    <i class="fas fa-sync-alt" id="reload-icon" style="cursor:pointer; color:#fff; font-size:0.8rem;" onclick="fetchRemoteData()" title="Sync"></i>
+                </div>
+                <div class="disconnect-btn" onclick="logout()"><i class="fas fa-power-off"></i> EXIT</div>
+            </div>
+        </div>
+
+        <!-- DEVICES VIEW -->
+        <div id="view-keys" class="view active">
+            <!-- COMPACT STATS -->
+            <div class="stats-grid">
+                <div class="stat-card blue" onclick="setFilterByStat('all')">
+                    <i class="fas fa-microchip stat-icon"></i>
+                    <div class="stat-num" id="stat-total">0</div>
+                    <div class="stat-label">TOTAL DEVS</div>
+                </div>
+                <div class="stat-card cyan" onclick="setFilterByStat('active')">
+                    <i class="fas fa-check-circle stat-icon"></i>
+                    <div class="stat-num" id="stat-active">0</div>
+                    <div class="stat-label">ACTIVE</div>
+                </div>
+                <div class="stat-card orange" onclick="setFilterByStat('expired')">
+                    <i class="fas fa-hourglass-end stat-icon"></i>
+                    <div class="stat-num" id="stat-expired">0</div>
+                    <div class="stat-label">EXPIRED</div>
+                </div>
+            </div>
+
+            <!-- SEARCH & INLINE FAB -->
+            <div class="search-fab-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" id="search-keys" placeholder="Search Device ID or Date (DD/MM/YYYY)..." oninput="handleSearch()">
+                </div>
+                <button class="fab-inline" onclick="openAddModal()"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filter-chips-row">
+                <button class="filter-chip active" id="chip-all" onclick="setFilter('all', this)">ALL</button>
+                <button class="filter-chip" id="chip-active" onclick="setFilter('active', this)">ACTIVE</button>
+                <button class="filter-chip" id="chip-expired" onclick="setFilter('expired', this)">EXPIRED</button>
+            </div>
+
+            <!-- BULK ACTIONS -->
+            <div class="bulk-actions-grid">
+                <button class="bulk-btn btn-copy-raw" onclick="copyAllRawString()">
+                    <i class="fas fa-copy"></i>
+                    <span>COPY ALL<br>RAW DATA</span>
+                </button>
+                <button class="bulk-btn btn-del-exp" onclick="bulkDeleteExpired()">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>DELETE<br>EXPIRED</span>
+                </button>
+                <button class="bulk-btn btn-ext-all" onclick="bulkExtendAll30Days()">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span>+30 DAYS<br>ALL DEVS</span>
+                </button>
+            </div>
+
+            <div class="content-area" id="keys-list"></div>
+            <div style="padding: 0 20px 20px;" id="keys-load-more-box"></div>
+        </div>
+
+        <!-- RAW STRING EDITOR & SYNC VIEW -->
+        <div id="view-raw" class="view">
+            <div class="content-area" style="padding-top:16px;">
+                <div class="ios-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="color:var(--cyan); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">
+                            <i class="fas fa-terminal"></i> Pure Raw Data (No Brackets)
+                        </h3>
+                        <button onclick="copyAllRawString()" style="background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--border-cyan); padding:5px 12px; border-radius:8px; font-size:0.68rem; font-weight:800; cursor:pointer;">
+                            <i class="fas fa-copy"></i> COPY RAW
+                        </button>
+                    </div>
+                    <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
+                        Strict format: <code style="color:#fff;">DEVICE_ID:DD/MM/YYYY</code> (One per line, zero <code style="color:var(--danger);">{ } | "</code> characters). You can paste or edit multiple lines directly below:
+                    </p>
+                    <div class="input-group" style="margin-bottom:12px;">
+                        <textarea id="raw-textarea" rows="12" style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.6; white-space:pre;" placeholder="3ba4a93f018dc799:14/11/2025&#10;3baa93f18799:15/11/2026"></textarea>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-primary" onclick="applyRawTextarea()"><i class="fas fa-bolt"></i> APPLY & SYNC RAW DATA</button>
+                        <button class="sq-btn" onclick="downloadRawTxtFile()" title="Download .txt"><i class="fas fa-download" style="color:var(--cyan);"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Add Device Modal -->
+    <div class="modal-overlay" id="key-modal">
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <h2 style="font-size:1.25rem; font-weight:900; text-align:center; margin-bottom:18px; text-transform:uppercase;">ADD DEVICE ID</h2>
+
+            <div class="input-group">
+                <label>DEVICE ID (HWID)</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="mod-dev-id" placeholder="e.g. 3ba4a93f018dc799" style="font-family: 'JetBrains Mono', monospace; font-size:0.95rem; height:46px;">
+                    <div class="sq-btn" onclick="randomHexId()" title="Generate 16-char Hex"><i class="fas fa-dice" style="color:var(--cyan); font-size:1.2rem;"></i></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>VALID DATE (SAVES AS DD/MM/YYYY)</label>
+                <input type="date" id="mod-dev-date" style="height:46px; font-family:'JetBrains Mono', monospace;">
+                <div class="quick-days-row">
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('mod-dev-date', 7)">+7 Days</div>
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('mod-dev-date', 30)">+30 Days</div>
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('mod-dev-date', 90)">+90 Days</div>
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('mod-dev-date', 365)">+1 Year</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 22px;">
+                <button class="modal-btn-cancel" onclick="closeModals()">CANCEL</button>
+                <button class="modal-btn-action" onclick="saveNewDevice()">SAVE DEVICE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Device Modal -->
+    <div class="modal-overlay" id="edit-key-modal">
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <h2 style="color:var(--cyan); font-size:1.25rem; font-weight:900; text-align:center; margin-bottom:18px; text-transform:uppercase;">EDIT DEVICE</h2>
+            
+            <input type="hidden" id="edit-orig-id">
+
+            <div class="input-group">
+                <label>DEVICE ID (HWID)</label>
+                <input type="text" id="edit-dev-id" style="font-family:'JetBrains Mono', monospace; height:46px; font-size:0.95rem;">
+            </div>
+
+            <div class="input-group">
+                <label>VALID DATE (DD/MM/YYYY)</label>
+                <input type="date" id="edit-dev-date" style="height:46px; font-family:'JetBrains Mono', monospace;">
+                <div class="quick-days-row">
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('edit-dev-date', 7)">+7 Days</div>
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('edit-dev-date', 30)">+30 Days</div>
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('edit-dev-date', 90)">+90 Days</div>
+                    <div class="q-day-btn" onclick="setPickerOffsetDays('edit-dev-date', 365)">+1 Year</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 22px;">
+                <button class="modal-btn-cancel" onclick="closeModals()">CANCEL</button>
+                <button class="modal-btn-action" onclick="saveEditedDevice()">UPDATE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav" id="bottom-nav" style="display: none;">
+        <div class="nav-item active" onclick="nav('keys', this)">
+            <div class="nav-icon-wrap"><i class="fas fa-microchip"></i></div>
+            <span>DEVICES</span>
+        </div>
+        <div class="nav-item" onclick="nav('raw', this)">
+            <div class="nav-icon-wrap"><i class="fas fa-code"></i></div>
+            <span>RAW DATA</span>
+        </div>
+    </div>
+
+    <script>
+        function getStorage(key, fallback = null) { try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; } }
+        function setStorage(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+
+        // Default initial data from your prompt
+        const DEFAULT_RAW_DATA = `3ba4a93f018dc799:14/11/2025
+3baa93f18799:15/11/2026
+a1b2c3d4e5f6g7h8:01/01/2027
+74fadf422d5256:15/11/2026`;
+
+        let REMOTE_URL = "";
+        let REMOTE_SECRET = "";
+        let MODE = "LOCAL"; // LOCAL | FIREBASE | GITHUB | RAW_URL
+        let GITHUB_SHA = null;
+        let GITHUB_API_ENDPOINT = "";
+
+        // Array of { id: "3ba4a93f018dc799", date: "14/11/2025" }
+        let DEVICE_LIST = [];
+        let currentFilter = 'all';
+        let expandedId = null;
+
+        const PAGE_CHUNK = 40;
+        let visibleCount = PAGE_CHUNK;
+        let searchDebounceTimer = null;
+
+        window.onload = () => {
+            const lastUrl = getStorage('dp_raw_url', '');
+            const lastSecret = getStorage('dp_raw_secret', '');
+            
+            if (lastUrl) document.getElementById('auth-url').value = lastUrl;
+            if (lastSecret) document.getElementById('auth-secret').value = lastSecret;
+
+            renderSavedUrls();
+        };
+
+        function renderSavedUrls() {
+            let savedConns = [];
+            try { savedConns = JSON.parse(getStorage('dp_raw_conns', '[]')) || []; } catch(e) {}
+            const container = document.getElementById('saved-connections');
+            const list = document.getElementById('saved-url-list');
+            list.innerHTML = "";
+            if (savedConns.length === 0) { container.style.display = 'none'; return; }
+            
+            container.style.display = 'block';
+            savedConns.forEach((conn, index) => {
+                const displayHost = conn.url.replace(/^https?:\/\//, '').replace(/\/+$/, '');
+                list.innerHTML += `
+                    <div class="saved-url-item" onclick="setAndConnect('${conn.url}', '${conn.secret}')">
+                        <div style="flex:1; overflow:hidden;">
+                            <div style="font-size:0.82rem; font-weight:800; color:#fff; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                                <i class="fas fa-link" style="color:var(--cyan); margin-right:8px;"></i>${displayHost}
+                            </div>
+                        </div>
+                        <div style="background:var(--danger-dim); color:var(--danger); width:30px; height:30px; border-radius:8px; display:flex; justify-content:center; align-items:center;" onclick="removeSavedUrl(${index}, event)">
+                            <i class="fas fa-trash" style="font-size:0.75rem;"></i>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function setAndConnect(url, secret) {
+            document.getElementById('auth-url').value = url;
+            document.getElementById('auth-secret').value = secret || "";
+            login();
+        }
+
+        function removeSavedUrl(index, event) {
+            if (event) event.stopPropagation();
+            let savedConns = JSON.parse(getStorage('dp_raw_conns', '[]')) || [];
+            savedConns.splice(index, 1);
+            setStorage('dp_raw_conns', JSON.stringify(savedConns));
+            renderSavedUrls();
+        }
+
+        function clearAllHistory() {
+            if (confirm("Clear saved connection history?")) {
+                setStorage('dp_raw_conns', '[]');
+                renderSavedUrls();
+            }
+        }
+
+        /* --- PARSE & SERIALIZE STRICT HWID:DD/MM/YYYY --- */
+        function parseRawLines(inputData) {
+            const result = [];
+            const seen = new Set();
+
+            if (!inputData) return result;
+
+            if (typeof inputData === 'string') {
+                // Strip any accidental {, }, ", | characters and split by newline
+                const lines = inputData.replace(/[{}"|]/g, '').split(/\r?\n/);
+                lines.forEach(line => {
+                    const clean = line.trim();
+                    if (!clean || !clean.includes(':')) return;
+                    const parts = clean.split(':');
+                    const id = parts[0].trim();
+                    const date = parts.slice(1).join(':').trim().replace(/,$/, '');
+                    if (id && date && !seen.has(id)) {
+                        seen.add(id);
+                        result.push({ id, date });
+                    }
+                });
+            } else if (typeof inputData === 'object') {
+                Object.entries(inputData).forEach(([k, v]) => {
+                    if (typeof v === 'string' && v.includes('/') && !seen.has(k)) {
+                        seen.add(k);
+                        result.push({ id: k.trim(), date: v.trim() });
+                    } else if (typeof v === 'string' && v.includes(':')) {
+                        const sub = parseRawLines(v);
+                        sub.forEach(item => {
+                            if (!seen.has(item.id)) {
+                                seen.add(item.id);
+                                result.push(item);
+                            }
+                        });
+                    }
+                });
+            }
+            return result;
+        }
+
+        function toPureRawString() {
+            return DEVICE_LIST.map(item => `${item.id}:${item.date}`).join('\n');
+        }
+
+        /* --- DATE HELPERS (STRICT DD/MM/YYYY) --- */
+        function parseDDMMYYYY(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.trim().split(/[\/\-]/);
+            if (parts.length !== 3) return null;
+            let dd, mm, yyyy;
+            if (parts[0].length === 4) {
+                yyyy = parseInt(parts[0], 10);
+                mm = parseInt(parts[1], 10);
+                dd = parseInt(parts[2], 10);
+            } else {
+                dd = parseInt(parts[0], 10);
+                mm = parseInt(parts[1], 10);
+                yyyy = parseInt(parts[2], 10);
+            }
+            if (isNaN(dd) || isNaN(mm) || isNaN(yyyy)) return null;
+            return new Date(yyyy, mm - 1, dd, 23, 59, 59, 999);
+        }
+
+        function inputDateToDDMMYYYY(yyyy_mm_dd) {
+            if (!yyyy_mm_dd) return "";
+            const [y, m, d] = yyyy_mm_dd.split('-');
+            return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+        }
+
+        function ddmmyyyyToInputDate(dd_mm_yyyy) {
+            const dt = parseDDMMYYYY(dd_mm_yyyy);
+            if (!dt) return "";
+            const yyyy = dt.getFullYear();
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const dd = String(dt.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function getDeviceStatus(dateStr) {
+            const expDate = parseDDMMYYYY(dateStr);
+            if (!expDate) return { id: 'expired', class: 'expired', text: 'INVALID', color: 'var(--danger)', daysText: 'Invalid Date' };
+            
+            const now = new Date();
+            const diffMs = expDate.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffMs / 86400000);
+
+            if (diffMs < 0) {
+                return { id: 'expired', class: 'expired', text: 'EXPIRED', color: 'var(--danger)', daysText: `${Math.abs(diffDays)}d ago` };
+            }
+            return { id: 'active', class: 'active', text: 'ACTIVE', color: 'var(--success)', daysText: `${diffDays} Days Left` };
+        }
+
+        /* --- CONNECTION MODES --- */
+        function startDirectRawMode() {
+            MODE = "LOCAL";
+            const savedRaw = getStorage('dp_raw_local_data', DEFAULT_RAW_DATA);
+            DEVICE_LIST = parseRawLines(savedRaw);
+            document.getElementById('mode-badge-txt').innerText = "LOCAL RAW";
+            openDashboardUI();
+            showIsland("Direct Raw Mode Active", "success", "fa-code");
+        }
+
+        function convertGitHubUrlToApi(url) {
+            // Converts raw.githubusercontent.com/user/repo/refs/heads/branch/path or github.com/user/repo/blob/branch/path to API url
+            try {
+                if (url.includes('api.github.com/repos/')) return url;
+                if (url.includes('raw.githubusercontent.com/')) {
+                    let clean = url.split('raw.githubusercontent.com/')[1];
+                    clean = clean.replace('refs/heads/', '');
+                    const parts = clean.split('/');
+                    const owner = parts[0];
+                    const repo = parts[1];
+                    const branch = parts[2];
+                    const filePath = parts.slice(3).join('/');
+                    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+                }
+                if (url.includes('github.com/') && url.includes('/blob/')) {
+                    let clean = url.split('github.com/')[1];
+                    const [ownerRepo, blobPath] = clean.split('/blob/');
+                    const [owner, repo] = ownerRepo.split('/');
+                    const parts = blobPath.split('/');
+                    const branch = parts[0];
+                    const filePath = parts.slice(1).join('/');
+                    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
+                }
+            } catch (e) {}
+            return url;
+        }
+
+        async function login() {
+            const btn = document.getElementById('login-btn');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> CONNECTING...`;
+            
+            let url = document.getElementById('auth-url').value.trim();
+            const secret = document.getElementById('auth-secret').value.trim();
+
+            if (!url) {
+                showIsland("Enter URL or use Direct Raw Mode!", "error");
+                btn.innerHTML = "CONNECT REMOTE";
+                return;
+            }
+
+            REMOTE_URL = url.replace(/\/+$/, '');
+            REMOTE_SECRET = secret;
+
+            try {
+                if (REMOTE_URL.includes('github.com') || REMOTE_URL.includes('githubusercontent.com')) {
+                    MODE = "GITHUB";
+                    GITHUB_API_ENDPOINT = convertGitHubUrlToApi(REMOTE_URL);
+                    const headers = { 'Accept': 'application/vnd.github.v3+json' };
+                    if (REMOTE_SECRET) headers['Authorization'] = `token ${REMOTE_SECRET}`;
+                    
+                    const res = await fetch(GITHUB_API_ENDPOINT, { headers });
+                    if (!res.ok) throw new Error("GitHub Fetch Failed");
+                    const data = await res.json();
+                    if (data.sha) {
+                        GITHUB_SHA = data.sha;
+                        const decoded = atob(data.content.replace(/\n/g, ''));
+                        DEVICE_LIST = parseRawLines(decoded);
+                    } else {
+                        const txt = await res.text();
+                        DEVICE_LIST = parseRawLines(txt);
+                    }
+                    document.getElementById('mode-badge-txt').innerText = "GITHUB SYNC";
+                } else if (REMOTE_URL.includes('firebaseio.com') || REMOTE_URL.includes('firebasedatabase.app')) {
+                    MODE = "FIREBASE";
+                    const fbUrl = REMOTE_URL.endsWith('.json') ? REMOTE_URL : `${REMOTE_URL}/.json`;
+                    const authParam = REMOTE_SECRET ? `?auth=${REMOTE_SECRET}` : '';
+                    const res = await fetch(`${fbUrl}${authParam}`);
+                    if (!res.ok) throw new Error("Firebase Auth Failed");
+                    const data = await res.json();
+                    DEVICE_LIST = data ? parseRawLines(data) : parseRawLines(DEFAULT_RAW_DATA);
+                    document.getElementById('mode-badge-txt').innerText = "FIREBASE";
+                } else {
+                    MODE = "RAW_URL";
+                    const res = await fetch(REMOTE_URL);
+                    if (!res.ok) throw new Error("URL Fetch Failed");
+                    const txt = await res.text();
+                    DEVICE_LIST = parseRawLines(txt);
+                    document.getElementById('mode-badge-txt').innerText = "RAW URL";
+                }
+
+                setStorage('dp_raw_url', REMOTE_URL);
+                setStorage('dp_raw_secret', REMOTE_SECRET);
+
+                let savedConns = JSON.parse(getStorage('dp_raw_conns', '[]')) || [];
+                const existingIndex = savedConns.findIndex(c => c.url === REMOTE_URL);
+                if (existingIndex !== -1) savedConns.splice(existingIndex, 1);
+                savedConns.unshift({ url: REMOTE_URL, secret: REMOTE_SECRET });
+                if (savedConns.length > 5) savedConns.pop(); 
+                setStorage('dp_raw_conns', JSON.stringify(savedConns));
+
+                openDashboardUI();
+                showIsland("Connected & Loaded!", "success", "fa-check-circle");
+            } catch (e) {
+                showIsland("Connection Error! Check URL/Token", "error");
+                btn.innerHTML = "CONNECT REMOTE";
+            }
+        }
+
+        function openDashboardUI() {
+            const loginScreen = document.getElementById('login-screen');
+            loginScreen.style.opacity = '0';
+            loginScreen.style.pointerEvents = 'none';
+            setTimeout(() => {
+                loginScreen.style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex'; 
+                document.getElementById('bottom-nav').style.display = 'flex';
+                renderAll();
+            }, 300);
+        }
+
+        async function fetchRemoteData() {
+            if (MODE === "LOCAL") {
+                renderAll();
+                return showIsland("Refreshed Local Raw Data", "success");
+            }
+            const icon = document.getElementById('reload-icon');
+            icon.classList.add('fa-spin');
+            try {
+                await login();
+            } catch (e) {}
+            setTimeout(() => icon.classList.remove('fa-spin'), 400);
+        }
+
+        async function syncRawDataToRemote() {
+            const rawStr = toPureRawString();
+            setStorage('dp_raw_local_data', rawStr);
+            document.getElementById('raw-textarea').value = rawStr;
+
+            if (MODE === "LOCAL") return;
+
+            try {
+                if (MODE === "FIREBASE") {
+                    const fbUrl = REMOTE_URL.endsWith('.json') ? REMOTE_URL : `${REMOTE_URL}/.json`;
+                    const authParam = REMOTE_SECRET ? `?auth=${REMOTE_SECRET}` : '';
+                    // Saves as pure raw string in Firebase
+                    await fetch(`${fbUrl}${authParam}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(rawStr)
+                    });
+                } else if (MODE === "GITHUB" && REMOTE_SECRET) {
+                    const baseUrl = GITHUB_API_ENDPOINT.split('?')[0];
+                    const branchPart = GITHUB_API_ENDPOINT.includes('?ref=') ? GITHUB_API_ENDPOINT.split('?ref=')[1] : 'main';
+                    const bodyObj = {
+                        message: "Update HWID list via DPMods Controller",
+                        content: btoa(unescape(encodeURIComponent(rawStr))),
+                        branch: branchPart
+                    };
+                    if (GITHUB_SHA) bodyObj.sha = GITHUB_SHA;
+
+                    const res = await fetch(baseUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${REMOTE_SECRET}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(bodyObj)
+                    });
+                    if (res.ok) {
+                        const resData = await res.json();
+                        if (resData.content && resData.content.sha) GITHUB_SHA = resData.content.sha;
+                    } else {
+                        showIsland("GitHub Push Failed (Check Token)", "error");
+                    }
+                }
+            } catch (e) {
+                showIsland("Remote Sync Error", "error");
+            }
+        }
+
+        function logout() { location.reload(); }
+
+        function nav(viewId, el) {
+            document.querySelectorAll('.view').forEach(v => { v.style.display = 'none'; v.classList.remove('active'); });
+            const nv = document.getElementById('view-' + viewId);
+            nv.style.display = 'block';
+            nv.classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (el) el.classList.add('active');
+
+            if (viewId === 'raw') {
+                document.getElementById('raw-textarea').value = toPureRawString();
+            }
+        }
+
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+        document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModals(); }); });
+
+        function copyToClipboard(text, event) {
+            if (event) event.stopPropagation(); 
+            const el = document.createElement('textarea'); 
+            el.value = text;
+            document.body.appendChild(el); 
+            el.select();
+            try { document.execCommand('copy'); showIsland("Copied: " + text, "success", "fa-copy"); } catch (e) {}
+            document.body.removeChild(el);
+        }
+
+        function copyAllRawString() {
+            const rawStr = toPureRawString();
+            const el = document.createElement('textarea');
+            el.value = rawStr;
+            document.body.appendChild(el);
+            el.select();
+            try { document.execCommand('copy'); showIsland(`Copied ${DEVICE_LIST.length} lines!`, "success", "fa-copy"); } catch (e) {}
+            document.body.removeChild(el);
+        }
+
+        function downloadRawTxtFile() {
+            const blob = new Blob([toPureRawString()], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'devices.txt';
+            a.click();
+        }
+
+        async function applyRawTextarea() {
+            const rawTxt = document.getElementById('raw-textarea').value;
+            DEVICE_LIST = parseRawLines(rawTxt);
+            await syncRawDataToRemote();
+            renderAll();
+            showIsland("Raw List Updated & Synced!", "success", "fa-bolt");
+        }
+
+        /* --- RENDERING & STATS --- */
+        function renderAll() {
+            renderStats();
+            renderDevices();
+            document.getElementById('raw-textarea').value = toPureRawString();
+        }
+
+        function renderStats() {
+            let total = DEVICE_LIST.length;
+            let active = 0;
+            let expired = 0;
+
+            DEVICE_LIST.forEach(item => {
+                const st = getDeviceStatus(item.date);
+                if (st.id === 'active') active++;
+                else expired++;
+            });
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-active').innerText = active;
+            document.getElementById('stat-expired').innerText = expired;
+        }
+
+        function setFilterByStat(fType) {
+            const chip = document.getElementById('chip-' + fType);
+            if (chip) setFilter(fType, chip);
+        }
+
+        function handleSearch() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                visibleCount = PAGE_CHUNK; 
+                renderDevices();
+            }, 180);
+        }
+
+        function setFilter(val, el) {
+            currentFilter = val;
+            visibleCount = PAGE_CHUNK; 
+            el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            renderDevices(); 
+        }
+
+        function toggleAccordion(devId) {
+            expandedId = (expandedId === devId) ? null : devId;
+            renderDevices(); 
+        }
+
+        function renderDevices() {
+            const list = document.getElementById('keys-list');
+            const loadMoreBox = document.getElementById('keys-load-more-box');
+            const search = document.getElementById('search-keys').value.toLowerCase().trim();
+            
+            const filtered = [];
+            for (let i = 0; i < DEVICE_LIST.length; i++) {
+                const item = DEVICE_LIST[i];
+                const statusObj = getDeviceStatus(item.date);
+
+                if (currentFilter !== 'all' && currentFilter !== statusObj.id) continue;
+                if (search && !item.id.toLowerCase().includes(search) && !item.date.toLowerCase().includes(search)) continue;
+
+                filtered.push({ item, statusObj });
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="empty-state">NO DEVICES FOUND</div>`;
+                loadMoreBox.innerHTML = '';
+                return;
+            }
+
+            const sliceToRender = filtered.slice(0, visibleCount);
+            let htmlBuffer = "";
+
+            for (let i = 0; i < sliceToRender.length; i++) {
+                const { item, statusObj } = sliceToRender[i];
+                const isExpanded = expandedId === item.id;
+                const rawLine = `${item.id}:${item.date}`;
+
+                htmlBuffer += `
+                    <div class="acc-card ${isExpanded ? 'expanded' : ''}">
+                        <div class="acc-header" onclick="toggleAccordion('${item.id}')">
+                            <div class="acc-header-left">
+                                <i class="fas fa-chevron-down acc-chevron"></i>
+                                <i class="fas fa-microchip key-icon"></i>
+                                <div class="key-title-wrapper">
+                                    <div class="key-title">${item.id}</div>
+                                    <div class="key-sub-date"><i class="far fa-calendar-alt" style="margin-right:4px;"></i>${item.date} • <span style="color:${statusObj.color}">${statusObj.daysText}</span></div>
+                                </div>
+                            </div>
+                            <div class="acc-header-right">
+                                <span class="copy-badge" onclick="copyToClipboard('${rawLine}', event)">COPY LINE</span>
+                                <div class="status-badge ${statusObj.class}">
+                                    <div class="badge-dot" style="background:${statusObj.color}"></div>
+                                    ${statusObj.text}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="acc-body" style="max-height: ${isExpanded ? '320px' : '0'};">
+                            <div class="acc-content">
+                                <div class="info-grid">
+                                    <div class="info-box"><span class="info-lbl">Device ID</span><span class="info-val" onclick="copyToClipboard('${item.id}', event)" style="color:var(--cyan); cursor:pointer;">${item.id}</span></div>
+                                    <div class="info-box"><span class="info-lbl">Valid Until</span><span class="info-val" style="color:${statusObj.color}">${item.date}</span></div>
+                                    <div class="info-box" style="grid-column: span 2;"><span class="info-lbl">Raw Line Format</span><span class="info-val" onclick="copyToClipboard('${rawLine}', event)" style="cursor:pointer;">${rawLine}</span></div>
+                                </div>
+                                <div class="action-row">
+                                    <button class="action-btn btn-plus30" onclick="extendDeviceDays('${item.id}', 30, event)"><i class="fas fa-plus"></i> 30 Days</button>
+                                    <button class="action-btn btn-edit" onclick="openEditModal('${item.id}', event)"><i class="fas fa-pen"></i> Edit</button>
+                                    <button class="action-btn btn-delete" onclick="deleteDevice('${item.id}', event)"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            list.innerHTML = htmlBuffer;
+
+            if (filtered.length > visibleCount) {
+                const remaining = filtered.length - visibleCount;
+                loadMoreBox.innerHTML = `
+                    <button class="load-more-btn" onclick="loadMoreItems()">
+                        LOAD MORE (+${remaining > PAGE_CHUNK ? PAGE_CHUNK : remaining})
+                    </button>
+                `;
+            } else {
+                loadMoreBox.innerHTML = '';
+            }
+        }
+
+        function loadMoreItems() {
+            visibleCount += PAGE_CHUNK;
+            renderDevices();
+        }
+
+        /* --- ADD / EDIT / DELETE CRUD --- */
+        function setPickerOffsetDays(inputId, days) {
+            const dt = new Date();
+            dt.setDate(dt.getDate() + days);
+            const yyyy = dt.getFullYear();
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const dd = String(dt.getDate()).padStart(2, '0');
+            document.getElementById(inputId).value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function randomHexId() {
+            const hex = '0123456789abcdef';
+            let res = '';
+            for (let i = 0; i < 16; i++) res += hex.charAt(Math.floor(Math.random() * hex.length));
+            document.getElementById('mod-dev-id').value = res;
+        }
+
+        function openAddModal() {
+            document.getElementById('mod-dev-id').value = "";
+            setPickerOffsetDays('mod-dev-date', 30);
+            document.getElementById('key-modal').classList.add('active');
+        }
+
+        async function saveNewDevice() {
+            const devId = document.getElementById('mod-dev-id').value.trim().replace(/[:{}"|]/g, '');
+            const rawDateVal = document.getElementById('mod-dev-date').value;
+
+            if (!devId) return showIsland("Enter Device ID!", "error");
+            if (!rawDateVal) return showIsland("Select Valid Date!", "error");
+
+            const formattedDate = inputDateToDDMMYYYY(rawDateVal);
+            const existingIdx = DEVICE_LIST.findIndex(x => x.id === devId);
+
+            if (existingIdx !== -1) {
+                DEVICE_LIST[existingIdx].date = formattedDate;
+            } else {
+                DEVICE_LIST.unshift({ id: devId, date: formattedDate });
+            }
+
+            await syncRawDataToRemote();
+            closeModals();
+            renderAll();
+            showIsland(`Saved ${devId}:${formattedDate}`, "success", "fa-check");
+        }
+
+        function openEditModal(devId, event) {
+            if (event) event.stopPropagation();
+            const item = DEVICE_LIST.find(x => x.id === devId);
+            if (!item) return;
+
+            document.getElementById('edit-orig-id').value = item.id;
+            document.getElementById('edit-dev-id').value = item.id;
+            document.getElementById('edit-dev-date').value = ddmmyyyyToInputDate(item.date);
+            document.getElementById('edit-key-modal').classList.add('active');
+        }
+
+        async function saveEditedDevice() {
+            const origId = document.getElementById('edit-orig-id').value;
+            const newId = document.getElementById('edit-dev-id').value.trim().replace(/[:{}"|]/g, '');
+            const newDateVal = document.getElementById('edit-dev-date').value;
+
+            if (!newId || !newDateVal) return showIsland("ID and Date required!", "error");
+
+            const formattedDate = inputDateToDDMMYYYY(newDateVal);
+            const idx = DEVICE_LIST.findIndex(x => x.id === origId);
+            if (idx !== -1) {
+                DEVICE_LIST[idx] = { id: newId, date: formattedDate };
+                if (expandedId === origId) expandedId = newId;
+                await syncRawDataToRemote();
+                closeModals();
+                renderAll();
+                showIsland("Device Updated!", "success", "fa-pen");
+            }
+        }
+
+        async function extendDeviceDays(devId, days, event) {
+            if (event) event.stopPropagation();
+            const item = DEVICE_LIST.find(x => x.id === devId);
+            if (!item) return;
+
+            let baseDate = parseDDMMYYYY(item.date);
+            const now = new Date();
+            if (!baseDate || baseDate < now) baseDate = now;
+
+            baseDate.setDate(baseDate.getDate() + days);
+            const dd = String(baseDate.getDate()).padStart(2, '0');
+            const mm = String(baseDate.getMonth() + 1).padStart(2, '0');
+            const yyyy = baseDate.getFullYear();
+
+            item.date = `${dd}/${mm}/${yyyy}`;
+            await syncRawDataToRemote();
+            renderAll();
+            showIsland(`Extended to ${item.date}`, "success", "fa-calendar-check");
+        }
+
+        async function deleteDevice(devId, event) {
+            if (event) event.stopPropagation();
+            if (confirm(`Delete ${devId}?`)) {
+                DEVICE_LIST = DEVICE_LIST.filter(x => x.id !== devId);
+                await syncRawDataToRemote();
+                renderAll();
+                showIsland("Device Removed", "success", "fa-trash");
+            }
+        }
+
+        /* --- BULK OPERATIONS --- */
+        async function bulkDeleteExpired() {
+            const expiredCount = DEVICE_LIST.filter(x => getDeviceStatus(x.date).id === 'expired').length;
+            if (expiredCount === 0) return showIsland("No expired devices found", "error");
+
+            if (confirm(`Delete all ${expiredCount} EXPIRED devices?`)) {
+                DEVICE_LIST = DEVICE_LIST.filter(x => getDeviceStatus(x.date).id !== 'expired');
+                await syncRawDataToRemote();
+                renderAll();
+                showIsland(`Removed ${expiredCount} expired devices`, "success");
+            }
+        }
+
+        async function bulkExtendAll30Days() {
+            if (DEVICE_LIST.length === 0) return;
+            if (!confirm(`Add +30 Days to all ${DEVICE_LIST.length} devices?`)) return;
+
+            const now = new Date();
+            DEVICE_LIST.forEach(item => {
+                let baseDate = parseDDMMYYYY(item.date);
+                if (!baseDate || baseDate < now) baseDate = new Date();
+                baseDate.setDate(baseDate.getDate() + 30);
+                const dd = String(baseDate.getDate()).padStart(2, '0');
+                const mm = String(baseDate.getMonth() + 1).padStart(2, '0');
+                const yyyy = baseDate.getFullYear();
+                item.date = `${dd}/${mm}/${yyyy}`;
+            });
+
+            await syncRawDataToRemote();
+            renderAll();
+            showIsland("Extended all devices by +30 Days!", "success");
+        }
+
+        let islandTimeout;
+        function showIsland(msg, type = "success", customIcon = null) {
+            const island = document.getElementById('dynamic-island');
+            island.innerHTML = `<i class="fas ${customIcon || (type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle')}"></i> ${msg}`;
+            island.style.color = type === "success" ? "var(--cyan)" : "var(--danger)";
+            island.classList.add('show');
+            clearTimeout(islandTimeout);
+            islandTimeout = setTimeout(() => { island.classList.remove('show'); }, 2600); 
+        }
+    </script>
+</body>
+</html>
