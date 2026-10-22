@@ -85,7 +85,7 @@
         #login-screen { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; z-index: 500; background: var(--bg-dark); transition: opacity 0.4s ease;}
         .login-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 360px; }
         .logo-icon { font-size: 4.2rem; color: var(--cyan); margin-bottom: 12px; filter: drop-shadow(var(--cyan-glow)); }
-        #login-screen h1 { font-size: 2rem; font-weight: 900; line-height: 1.1; margin-bottom: 24px; letter-spacing: -0.5px; }
+        #login-screen h1 { font-size: 2.2rem; font-weight: 900; line-height: 1.1; margin-bottom: 24px; letter-spacing: -0.5px; }
 
         .login-card { background: var(--bg-card); border-radius: 20px; padding: 22px; border: 1px solid var(--border-light); width: 100%; margin-bottom: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);}
         
@@ -93,14 +93,9 @@
         .input-group label { display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: 800; margin-bottom: 6px; padding: 0 4px; text-transform: uppercase; letter-spacing: 1px;}
         .input-group input, .input-group textarea { width: 100%; background: #070709; border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 16px; color: #fff; font-size: 0.9rem; font-weight: 600; outline: none; transition: 0.2s;}
         .input-group input:focus, .input-group textarea:focus { border-color: var(--cyan); box-shadow: 0 0 8px rgba(0,229,255,0.2); }
-        .input-row { display: flex; gap: 12px; }
-        .input-row .input-group { flex: 1; margin-bottom: 10px; }
 
         .btn-primary { width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 0.95rem; font-weight: 900; cursor: pointer; transition: 0.2s; background: var(--cyan); color: #000; box-shadow: var(--cyan-glow); text-transform: uppercase; letter-spacing: 1px;}
         .btn-primary:active { transform: scale(0.96); opacity: 0.8;}
-
-        .btn-outline { width: 100%; padding: 13px; border-radius: 12px; border: 1px dashed var(--border-cyan); font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; background: rgba(0,229,255,0.05); color: var(--cyan); text-transform: uppercase; letter-spacing: 1px; margin-top: 10px;}
-        .btn-outline:active { transform: scale(0.96); background: var(--cyan-dim);}
 
         .saved-url-item { background: var(--bg-card); border: 1px solid var(--border-light); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s;}
         .saved-url-item:active { transform: scale(0.98); background: #1a1a1f; }
@@ -147,7 +142,7 @@
 
         /* --- FILTERS --- */
         .filter-chips-row { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 12px; scrollbar-width: none; }
-        .filter-chip { background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); padding: 6px 16px; border-radius: 14px; font-size: 0.68rem; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.8px;}
+        .filter-chip { background: transparent; border: 1px solid var(--border-light); color: var(--text-muted); padding: 6px 14px; border-radius: 14px; font-size: 0.68rem; font-weight: 800; cursor: pointer; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.8px;}
         .filter-chip.active { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim);}
 
         /* --- BULK ACTIONS --- */
@@ -166,16 +161,16 @@
         
         .acc-card { background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-light); overflow: hidden; transition: 0.25s ease; }
         
-        .acc-header { display: flex; justify-content: space-between; align-items: center; padding: 14px; cursor: pointer; user-select: none; gap: 8px;}
+        .acc-header { display: flex; justify-content: space-between; align-items: center; padding: 13px 14px; cursor: pointer; user-select: none; gap: 8px;}
         .acc-header-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
         .acc-chevron { color: var(--text-muted); font-size: 0.75rem; transition: transform 0.3s; flex-shrink: 0;}
         .acc-card.expanded .acc-chevron { transform: rotate(180deg); color: var(--cyan); }
         
-        .key-icon { color: var(--cyan); font-size: 1.1rem; flex-shrink: 0;}
+        .key-icon { color: var(--cyan); font-size: 1.05rem; flex-shrink: 0;}
         
         .key-title-wrapper { display: flex; flex-direction: column; flex: 1; min-width: 0; justify-content: center; }
-        .key-title { font-size: 0.9rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .key-sub-date { font-size: 0.64rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; font-weight: 700;}
+        .key-title { font-size: 0.88rem; font-weight: 800; color: #fff; font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .key-sub-date { font-size: 0.62rem; color: var(--text-muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; font-weight: 700;}
         
         .acc-header-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .copy-badge { background: rgba(255,255,255,0.06); color: var(--text-muted); font-size: 0.55rem; padding: 4px 8px; border-radius: 6px; font-weight: 800; cursor: pointer; transition: 0.2s; border: 1px solid rgba(255,255,255,0.06);}
@@ -189,13 +184,13 @@
         .acc-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: rgba(0,0,0,0.35); }
         .acc-content { padding: 14px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid rgba(255,255,255,0.04); }
         
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.015); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);}
-        .info-box { display: flex; flex-direction: column; gap: 3px; min-width: 0;}
-        .info-lbl { font-size: 0.56rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;}
-        .info-val { font-size: 0.8rem; color: #fff; font-weight: 700; font-family: 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis;}
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 10px; background: rgba(255,255,255,0.015); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);}
+        .info-box { display: flex; justify-content: space-between; align-items: center; }
+        .info-lbl { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;}
+        .info-val { font-size: 0.8rem; color: #fff; font-weight: 700; font-family: 'JetBrains Mono', monospace; cursor:pointer;}
 
         .action-row { display: flex; gap: 8px; margin-top: 2px;}
-        .action-btn { flex: 1; padding: 10px; border-radius: 9px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; display: flex; justify-content: center; align-items: center; gap: 6px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.4px;}
+        .action-btn { flex: 1; padding: 10px; border-radius: 9px; font-size: 0.72rem; font-weight: 800; cursor: pointer; border: none; display: flex; justify-content: center; align-items: center; gap: 6px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.4px;}
         .action-btn:active { transform: scale(0.95); }
         .btn-plus30 { background: var(--success-dim); color: var(--success); border: 1px solid rgba(46,213,115,0.25); }
         .btn-edit { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.08);}
@@ -203,6 +198,8 @@
 
         .load-more-btn { background: rgba(0, 229, 255, 0.05); color: var(--cyan); border: 1px solid var(--border-cyan); width: 100%; padding: 13px; border-radius: 12px; margin-top: 8px; font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;}
         .load-more-btn:active { transform: scale(0.98); background: var(--cyan-dim); }
+
+        .ios-card { background: var(--bg-card); border-radius: 18px; padding: 18px; border: 1px solid var(--border-light); margin-bottom: 16px; }
 
         /* --- BOTTOM NAV --- */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: rgba(10,10,12,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; align-items: center; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
@@ -230,12 +227,11 @@
         .sq-btn { width: 46px; height: 46px; border-radius: 12px; background: #1a1b1f; border: 1px solid var(--border-light); display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; transition: 0.2s;}
         .sq-btn:active { background: #25262c; transform: scale(0.94);}
 
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;}
-        .ios-card { background: var(--bg-card); border-radius: 18px; padding: 18px; border: 1px solid var(--border-light); margin-bottom: 16px; }
-
         .quick-days-row { display: flex; gap: 6px; margin-top: 8px; }
         .q-day-btn { flex: 1; background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.25); color: var(--cyan); padding: 8px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; text-align: center;}
         .q-day-btn:active { background: var(--cyan); color: #000; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;}
     </style>
 </head>
 <body dir="ltr">
@@ -243,7 +239,7 @@
     <!-- DYNAMIC ISLAND -->
     <div id="dynamic-island"><i id="di-icon" class="fas fa-check-circle"></i> <span id="di-msg"></span></div>
 
-    <!-- LOGIN / CONNECTION SCREEN -->
+    <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-wrapper">
             <div class="logo-icon"><i class="fas fa-microchip"></i></div>
@@ -251,15 +247,14 @@
             
             <div class="login-card">
                 <div class="input-group">
-                    <label>Firebase URL or GitHub Raw/API URL</label>
+                    <label>FIREBASE DATABASE URL</label>
                     <input type="text" id="auth-url" placeholder="https://your-db.firebaseio.com">
                 </div>
                 <div class="input-group">
-                    <label>Admin Token / GitHub Token (Optional for Raw)</label>
-                    <input type="password" id="auth-secret" placeholder="Token / Secret">
+                    <label>DATABASE SECRET / TOKEN</label>
+                    <input type="password" id="auth-secret" placeholder="Optional for public, required for secured">
                 </div>
                 <button id="login-btn" class="btn-primary" onclick="login()" style="margin-top: 4px;">CONNECT REMOTE</button>
-                <button class="btn-outline" onclick="startDirectRawMode()"><i class="fas fa-code"></i> OPEN DIRECT RAW MODE</button>
             </div>
             
             <div id="saved-connections" style="width: 100%; text-align: start; display: none;">
@@ -352,20 +347,20 @@
                 <div class="ios-card">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                         <h3 style="color:var(--cyan); font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">
-                            <i class="fas fa-terminal"></i> Pure Raw Data (No Brackets)
+                            <i class="fas fa-terminal"></i> Pure Raw String Editor
                         </h3>
                         <button onclick="copyAllRawString()" style="background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--border-cyan); padding:5px 12px; border-radius:8px; font-size:0.68rem; font-weight:800; cursor:pointer;">
-                            <i class="fas fa-copy"></i> COPY RAW
+                            <i class="fas fa-copy"></i> COPY
                         </button>
                     </div>
                     <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
-                        Strict format: <code style="color:#fff;">DEVICE_ID:DD/MM/YYYY</code> (One per line, zero <code style="color:var(--danger);">{ } | "</code> characters). You can paste or edit multiple lines directly below:
+                        Strict format: <code style="color:#fff;">DEVICE_ID:DD/MM/YYYY</code>. Modifying this box will update your Firebase database with a single plain text string. No JSON brackets will be saved.
                     </p>
                     <div class="input-group" style="margin-bottom:12px;">
-                        <textarea id="raw-textarea" rows="12" style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.6; white-space:pre;" placeholder="3ba4a93f018dc799:14/11/2025&#10;3baa93f18799:15/11/2026"></textarea>
+                        <textarea id="raw-textarea" rows="14" style="font-family:'JetBrains Mono', monospace; font-size:0.85rem; line-height:1.6; white-space:pre;" placeholder="3ba4a93f018dc799:14/11/2025&#10;3baa93f18799:15/11/2026"></textarea>
                     </div>
                     <div style="display:flex; gap:10px;">
-                        <button class="btn-primary" onclick="applyRawTextarea()"><i class="fas fa-bolt"></i> APPLY & SYNC RAW DATA</button>
+                        <button class="btn-primary" onclick="applyRawTextarea()"><i class="fas fa-bolt"></i> APPLY & PUSH TO FIREBASE</button>
                         <button class="sq-btn" onclick="downloadRawTxtFile()" title="Download .txt"><i class="fas fa-download" style="color:var(--cyan);"></i></button>
                     </div>
                 </div>
@@ -455,17 +450,8 @@
         function getStorage(key, fallback = null) { try { return localStorage.getItem(key) || fallback; } catch (e) { return fallback; } }
         function setStorage(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
 
-        // Default initial data from your prompt
-        const DEFAULT_RAW_DATA = `3ba4a93f018dc799:14/11/2025
-3baa93f18799:15/11/2026
-a1b2c3d4e5f6g7h8:01/01/2027
-74fadf422d5256:15/11/2026`;
-
         let REMOTE_URL = "";
         let REMOTE_SECRET = "";
-        let MODE = "LOCAL"; // LOCAL | FIREBASE | GITHUB | RAW_URL
-        let GITHUB_SHA = null;
-        let GITHUB_API_ENDPOINT = "";
 
         // Array of { id: "3ba4a93f018dc799", date: "14/11/2025" }
         let DEVICE_LIST = [];
@@ -541,7 +527,7 @@ a1b2c3d4e5f6g7h8:01/01/2027
             if (!inputData) return result;
 
             if (typeof inputData === 'string') {
-                // Strip any accidental {, }, ", | characters and split by newline
+                // Strip any accidental JSON artifacts and split by newline
                 const lines = inputData.replace(/[{}"|]/g, '').split(/\r?\n/);
                 lines.forEach(line => {
                     const clean = line.trim();
@@ -625,43 +611,7 @@ a1b2c3d4e5f6g7h8:01/01/2027
             return { id: 'active', class: 'active', text: 'ACTIVE', color: 'var(--success)', daysText: `${diffDays} Days Left` };
         }
 
-        /* --- CONNECTION MODES --- */
-        function startDirectRawMode() {
-            MODE = "LOCAL";
-            const savedRaw = getStorage('dp_raw_local_data', DEFAULT_RAW_DATA);
-            DEVICE_LIST = parseRawLines(savedRaw);
-            document.getElementById('mode-badge-txt').innerText = "LOCAL RAW";
-            openDashboardUI();
-            showIsland("Direct Raw Mode Active", "success", "fa-code");
-        }
-
-        function convertGitHubUrlToApi(url) {
-            // Converts raw.githubusercontent.com/user/repo/refs/heads/branch/path or github.com/user/repo/blob/branch/path to API url
-            try {
-                if (url.includes('api.github.com/repos/')) return url;
-                if (url.includes('raw.githubusercontent.com/')) {
-                    let clean = url.split('raw.githubusercontent.com/')[1];
-                    clean = clean.replace('refs/heads/', '');
-                    const parts = clean.split('/');
-                    const owner = parts[0];
-                    const repo = parts[1];
-                    const branch = parts[2];
-                    const filePath = parts.slice(3).join('/');
-                    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-                }
-                if (url.includes('github.com/') && url.includes('/blob/')) {
-                    let clean = url.split('github.com/')[1];
-                    const [ownerRepo, blobPath] = clean.split('/blob/');
-                    const [owner, repo] = ownerRepo.split('/');
-                    const parts = blobPath.split('/');
-                    const branch = parts[0];
-                    const filePath = parts.slice(1).join('/');
-                    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${branch}`;
-                }
-            } catch (e) {}
-            return url;
-        }
-
+        /* --- FIREBASE ENGINE --- */
         async function login() {
             const btn = document.getElementById('login-btn');
             btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> CONNECTING...`;
@@ -670,7 +620,7 @@ a1b2c3d4e5f6g7h8:01/01/2027
             const secret = document.getElementById('auth-secret').value.trim();
 
             if (!url) {
-                showIsland("Enter URL or use Direct Raw Mode!", "error");
+                showIsland("Enter Firebase URL!", "error");
                 btn.innerHTML = "CONNECT REMOTE";
                 return;
             }
@@ -679,41 +629,15 @@ a1b2c3d4e5f6g7h8:01/01/2027
             REMOTE_SECRET = secret;
 
             try {
-                if (REMOTE_URL.includes('github.com') || REMOTE_URL.includes('githubusercontent.com')) {
-                    MODE = "GITHUB";
-                    GITHUB_API_ENDPOINT = convertGitHubUrlToApi(REMOTE_URL);
-                    const headers = { 'Accept': 'application/vnd.github.v3+json' };
-                    if (REMOTE_SECRET) headers['Authorization'] = `token ${REMOTE_SECRET}`;
-                    
-                    const res = await fetch(GITHUB_API_ENDPOINT, { headers });
-                    if (!res.ok) throw new Error("GitHub Fetch Failed");
-                    const data = await res.json();
-                    if (data.sha) {
-                        GITHUB_SHA = data.sha;
-                        const decoded = atob(data.content.replace(/\n/g, ''));
-                        DEVICE_LIST = parseRawLines(decoded);
-                    } else {
-                        const txt = await res.text();
-                        DEVICE_LIST = parseRawLines(txt);
-                    }
-                    document.getElementById('mode-badge-txt').innerText = "GITHUB SYNC";
-                } else if (REMOTE_URL.includes('firebaseio.com') || REMOTE_URL.includes('firebasedatabase.app')) {
-                    MODE = "FIREBASE";
-                    const fbUrl = REMOTE_URL.endsWith('.json') ? REMOTE_URL : `${REMOTE_URL}/.json`;
-                    const authParam = REMOTE_SECRET ? `?auth=${REMOTE_SECRET}` : '';
-                    const res = await fetch(`${fbUrl}${authParam}`);
-                    if (!res.ok) throw new Error("Firebase Auth Failed");
-                    const data = await res.json();
-                    DEVICE_LIST = data ? parseRawLines(data) : parseRawLines(DEFAULT_RAW_DATA);
-                    document.getElementById('mode-badge-txt').innerText = "FIREBASE";
-                } else {
-                    MODE = "RAW_URL";
-                    const res = await fetch(REMOTE_URL);
-                    if (!res.ok) throw new Error("URL Fetch Failed");
-                    const txt = await res.text();
-                    DEVICE_LIST = parseRawLines(txt);
-                    document.getElementById('mode-badge-txt').innerText = "RAW URL";
-                }
+                const fbUrl = REMOTE_URL.endsWith('.json') ? REMOTE_URL : `${REMOTE_URL}/.json`;
+                const authParam = REMOTE_SECRET ? `?auth=${REMOTE_SECRET}` : '';
+                const res = await fetch(`${fbUrl}${authParam}`);
+                if (!res.ok) throw new Error("Firebase Auth Failed");
+                
+                const data = await res.json();
+                
+                // If it's a string, `parseRawLines` parses it perfectly.
+                DEVICE_LIST = data ? parseRawLines(data) : [];
 
                 setStorage('dp_raw_url', REMOTE_URL);
                 setStorage('dp_raw_secret', REMOTE_SECRET);
@@ -746,10 +670,6 @@ a1b2c3d4e5f6g7h8:01/01/2027
         }
 
         async function fetchRemoteData() {
-            if (MODE === "LOCAL") {
-                renderAll();
-                return showIsland("Refreshed Local Raw Data", "success");
-            }
             const icon = document.getElementById('reload-icon');
             icon.classList.add('fa-spin');
             try {
@@ -760,48 +680,19 @@ a1b2c3d4e5f6g7h8:01/01/2027
 
         async function syncRawDataToRemote() {
             const rawStr = toPureRawString();
-            setStorage('dp_raw_local_data', rawStr);
             document.getElementById('raw-textarea').value = rawStr;
 
-            if (MODE === "LOCAL") return;
-
             try {
-                if (MODE === "FIREBASE") {
-                    const fbUrl = REMOTE_URL.endsWith('.json') ? REMOTE_URL : `${REMOTE_URL}/.json`;
-                    const authParam = REMOTE_SECRET ? `?auth=${REMOTE_SECRET}` : '';
-                    // Saves as pure raw string in Firebase
-                    await fetch(`${fbUrl}${authParam}`, {
-                        method: 'PUT',
-                        body: JSON.stringify(rawStr)
-                    });
-                } else if (MODE === "GITHUB" && REMOTE_SECRET) {
-                    const baseUrl = GITHUB_API_ENDPOINT.split('?')[0];
-                    const branchPart = GITHUB_API_ENDPOINT.includes('?ref=') ? GITHUB_API_ENDPOINT.split('?ref=')[1] : 'main';
-                    const bodyObj = {
-                        message: "Update HWID list via DPMods Controller",
-                        content: btoa(unescape(encodeURIComponent(rawStr))),
-                        branch: branchPart
-                    };
-                    if (GITHUB_SHA) bodyObj.sha = GITHUB_SHA;
-
-                    const res = await fetch(baseUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${REMOTE_SECRET}`,
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(bodyObj)
-                    });
-                    if (res.ok) {
-                        const resData = await res.json();
-                        if (resData.content && resData.content.sha) GITHUB_SHA = resData.content.sha;
-                    } else {
-                        showIsland("GitHub Push Failed (Check Token)", "error");
-                    }
-                }
+                const fbUrl = REMOTE_URL.endsWith('.json') ? REMOTE_URL : `${REMOTE_URL}/.json`;
+                const authParam = REMOTE_SECRET ? `?auth=${REMOTE_SECRET}` : '';
+                
+                // Save the raw text string correctly formatted to firebase
+                await fetch(`${fbUrl}${authParam}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(rawStr)
+                });
             } catch (e) {
-                showIsland("Remote Sync Error", "error");
+                showIsland("Firebase Sync Error", "error");
             }
         }
 
